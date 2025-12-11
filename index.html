@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conheça sua unidade KUMON mais próxima</title>
+    <!-- Carrega Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7; /* Fundo levemente acinzentado */
+        }
+        /* Cor principal KUMON-like */
+        .kumon-blue {
+            background-color: #007bff; /* Azul primário */
+        }
+        .text-kumon-blue {
+            color: #007bff;
+        }
+        .border-kumon-blue {
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-6 md:p-10 border-t-8 border-kumon-blue">
+        <!-- CABEÇALHO -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">
+                Conheça sua unidade <span class="text-kumon-blue">KUMON</span> mais próxima.
+            </h1>
+            <p class="text-gray-600 mt-2">Encontre a unidade em Campo Grande que está mais perto da sua casa.</p>
+        </header>
+
+        <!-- FORMULÁRIO DE BUSCA -->
+        <div id="search-section">
+            <label for="user-address" class="block text-lg font-semibold mb-2 text-gray-700">
+                Digite o endereço da sua residência:
+            </label>
+            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                <input
+                    type="text"
+                    id="user-address"
+                    placeholder="Ex: Rua Barão do Rio Branco, 1000, Campo Grande - MS"
+                    class="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-kumon-blue transition"
+                >
+                <button
+                    onclick="findClosestUnit()"
+                    id="search-button"
+                    class="kumon-blue text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 transform hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto whitespace-nowrap"
+                >
+                    <span id="button-text">Buscar Unidade Mais Próxima</span>
+                    <div id="loading-spinner" class="hidden spinner-border animate-spin inline-block w-4 h-4 border-2 rounded-full border-t-transparent" role="status"></div>
+                </button>
+            </div>
+            
+            <div class="text-center my-4 text-gray-500">
+                <span class="font-bold">OU</span>
+            </div>
+
+            <button
+                onclick="findClosestUnit(true)"
+                id="geo-button"
+                class="w-full bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg shadow-sm hover:bg-gray-300 transition duration-300 transform hover:scale-[1.01] active:scale-[0.99]"
+            >
+                Usar Minha Localização Atual
+            </button>
+        </div>
+
+        <!-- MENSAGEM DE ERRO/AVISO -->
+        <div id="message-container" class="mt-6 hidden">
+            <div id="message" class="p-4 rounded-lg font-medium" role="alert"></div>
+        </div>
+        
+        <!-- RESULTADO DA BUSCA -->
+        <div id="result-container" class="mt-8 pt-8 border-t border-gray-200 hidden">
+            <div class="flex items-center mb-4">
+                <div class="bg-green-100 p-3 rounded-full mr-4">
+                    <!-- Icone de Check SVG -->
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">
+                    Parabéns! Sua unidade <span class="text-kumon-blue">KUMON</span> mais próxima é:
+                </h2>
+            </div>
+            
+            <div class="bg-blue-50 p-6 rounded-xl border border-kumon-blue/50">
+                <p class="text-3xl font-extrabold text-kumon-blue mb-2" id="unit-name"></p>
+                <p class="text-lg text-gray-800 font-medium" id="unit-address"></p>
+                <p class="text-md text-gray-600 mt-2">Distância aproximada em linha reta: <span id="unit-distance" class="font-bold"></span></p>
+                
+                <!-- MAPA/LINK -->
+                <div class="mt-5">
+                    <a id="map-link" target="_blank" class="kumon-blue text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 inline-flex items-center">
+                        <!-- Icone de Mapa SVG -->
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Ver Rota no Google Maps
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTA IMPORTANTE -->
+        <p class="mt-10 text-sm text-red-500 p-3 bg-red-50 rounded-lg">
+            <strong>⚠️ NOTA DE IMPLEMENTAÇÃO:</strong> O cálculo de distância atual usa a fórmula "em linha reta" (Haversine). Além disso, as coordenadas geográficas das unidades, exceto as 5 primeiras, são *placeholders* (simuladas) e devem ser substituídas pelas coordenadas (Latitude e Longitude) reais de todas as 19 unidades no array `KUMON_UNITS` do código JavaScript para garantir a precisão.
+        </p>
+
+    </div>
+
+    <script>
+        // ----------------------------------------------------------------------
+        // 1. DADOS DAS UNIDADES KUMON
+        // ----------------------------------------------------------------------
+        // ATENÇÃO: As coordenadas (lat/lon) das 14 últimas unidades são PLACEHOLDERS.
+        // É CRUCIAL substituí-las pelas coordenadas geográficas (Latitude e Longitude)
+        // reais de cada unidade para que o sistema funcione corretamente!
+        const KUMON_UNITS = [
+            // Unidades com coordenadas geocodificadas (aproximadas, para demonstração)
+            { orientador: "ALICE", endereco: "RUA PERNAMBUCO, 137, Campo Grande, MS", telefone: "(67) 9 9250-0742", latitude: -20.4729, longitude: -54.6062 },
+            { orientador: "ANA FLAVIA", endereco: "AVENIDA MARQUES DE POMBAL, 925 SALA 1, Campo Grande, MS", telefone: "(67) 9 9334-2638", latitude: -20.4402, longitude: -54.6300 },
+            { orientador: "ANNE", endereco: "RUA VITÓRIO ZEOLLA, 1853, Campo Grande, MS", telefone: "(67) 9 9194-4245", latitude: -20.4626, longitude: -54.6811 },
+            { orientador: "BRUNA", endereco: "AVENIDA ALBERTO DE ARAÚJO ARRUDA, 474, Campo Grande, MS", telefone: "(67) 9 9647-4110", latitude: -20.4190, longitude: -54.5828 },
+            { orientador: "CLAUDINÉIA", endereco: "AVENIDA BANDEIRANTES, 1632, Campo Grande, MS", telefone: "(67) 9 9242-4364", latitude: -20.4907, longitude: -54.6225 },
+            
+            // PLACEHOLDERS (Centro de CG: -20.4635, -54.6473. Use valores únicos e reais!)
+            { orientador: "ELINA KAORI", endereco: "RUA LIBERDADE, 433, Campo Grande, MS", telefone: "(67) 9 9317-8585", latitude: -20.4630, longitude: -54.6470 }, 
+            { orientador: "FABRICIA", endereco: "RUA EUCLIDES DA CUNHA, 561 SALA 7, Campo Grande, MS", telefone: "(67) 3324-9997", latitude: -20.4632, longitude: -54.6472 },
+            { orientador: "JULIA", endereco: "AVENIDA BOM PASTOR, 1035, Campo Grande, MS", telefone: "(67) 9 9123-1790", latitude: -20.4634, longitude: -54.6474 },
+            { orientador: "LIGIA", endereco: "AVENIDA MASCARENHAS DE MORAES, 2821, Campo Grande, MS", telefone: "(67) 9 9333-2882", latitude: -20.4636, longitude: -54.6476 },
+            { orientador: "MARIA DO CARMO", endereco: "RUA AQUIDAUANA, 1650, Campo Grande, MS", telefone: "(67) 9 9283-4240", latitude: -20.4638, longitude: -54.6478 },
+            { orientador: "PATRICIA", endereco: "RUA CÂNDIDO LIMA, 3500, Campo Grande, MS", telefone: "(67) 9 9122-8356", latitude: -20.4640, longitude: -54.6480 },
+            { orientador: "PAULA", endereco: "RUA DA PAZ, 563, Campo Grande, MS", telefone: "(67) 9 9281-2856", latitude: -20.4642, longitude: -54.6482 },
+            { orientador: "SHIRLEI", endereco: "RUA JOÃO PEDRO DE SOUZA, 804, Campo Grande, MS", telefone: "(67) 9 9135-1815", latitude: -20.4644, longitude: -54.6484 },
+            { orientador: "SONIA", endereco: "RUA RIO GRANDE DO SUL, 1530, Campo Grande, MS", telefone: "(67) 9 9245-0552", latitude: -20.4646, longitude: -54.6486 },
+            { orientador: "SUELY", endereco: "AVENIDA AFONSO PENA, 3073, Campo Grande, MS", telefone: "(67) 9 9339-3073", latitude: -20.4648, longitude: -54.6488 },
+            { orientador: "VANDA", endereco: "RUA DA IMPRENSA, 39, Campo Grande, MS", telefone: "(67) 9 9102-1218", latitude: -20.4650, longitude: -54.6490 },
+            { orientador: "WALDIRENE", endereco: "RUA VILARES, 650, Campo Grande, MS", telefone: "(67) 9 9122-1982", latitude: -20.4652, longitude: -54.6492 },
+            { orientador: "ZILDA", endereco: "RUA DOMINGOS SÁVIO, 100, Campo Grande, MS", telefone: "(67) 9 9253-1284", latitude: -20.4654, longitude: -54.6494 },
+            { orientador: "KARIN", endereco: "AVENIDA EULÁLIO FERREIRA DE SOUZA, 1695, Campo Grande, MS", telefone: "(67) 9 9214-7298", latitude: -20.4656, longitude: -54.6496 }
+        ];
+
+        // ----------------------------------------------------------------------
+        // 2. FUNÇÕES DE UTILIDADE E CÁLCULO
+        // ----------------------------------------------------------------------
+
+        /**
+         * Exibe uma mensagem de erro ou sucesso na tela.
+         * @param {string} text - O texto da mensagem.
+         * @param {boolean} isError - Se for true, a mensagem é vermelha (erro), senão azul (info).
+         */
+        function displayMessage(text, isError = true) {
+            const container = document.getElementById('message-container');
+            const messageElement = document.getElementById('message');
+            
+            messageElement.textContent = text;
+            container.classList.remove('hidden');
+
+            if (isError) {
+                messageElement.classList.remove('bg-blue-100', 'text-blue-800');
+                messageElement.classList.add('bg-red-100', 'text-red-800', 'border-red-400');
+            } else {
+                messageElement.classList.remove('bg-red-100', 'text-red-800', 'border-red-400');
+                messageElement.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-400');
+            }
+
+            // Esconde o resultado, se estiver visível
+            document.getElementById('result-container').classList.add('hidden');
+        }
+        
+        /**
+         * Converte graus para radianos.
+         * @param {number} deg - Ângulo em graus.
+         * @returns {number} Ângulo em radianos.
+         */
+        function deg2rad(deg) {
+            return deg * (Math.PI / 180);
+        }
+
+        /**
+         * Calcula a distância em linha reta (Haversine) entre dois pontos (Lat/Lon).
+         * @param {number} lat1 - Latitude do ponto 1.
+         * @param {number} lon1 - Longitude do ponto 1.
+         * @param {number} lat2 - Latitude do ponto 2.
+         * @param {number} lon2 - Longitude do ponto 2.
+         * @returns {number} Distância em quilômetros (km).
+         */
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Raio da Terra em km
+            const dLat = deg2rad(lat2 - lat1);
+            const dLon = deg2rad(lon2 - lon1);
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distância em km
+        }
+
+        /**
+         * Encontra a unidade KUMON mais próxima.
+         * @param {number} userLat - Latitude do usuário.
+         * @param {number} userLon - Longitude do usuário.
+         */
+        function calculateClosestUnit(userLat, userLon) {
+            let closestUnit = null;
+            let minDistance = Infinity;
+
+            KUMON_UNITS.forEach(unit => {
+                const distance = haversineDistance(userLat, userLon, unit.latitude, unit.longitude);
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestUnit = unit;
+                }
+            });
+
+            if (closestUnit) {
+                displayResult(closestUnit, minDistance, userLat, userLon);
+            } else {
+                displayMessage("Nenhuma unidade encontrada. Verifique os dados das unidades.", true);
+            }
+        }
+
+        /**
+         * Atualiza a interface com o resultado.
+         * @param {object} unit - O objeto da unidade mais próxima.
+         * @param {number} distance - A distância calculada em km.
+         * @param {number} userLat - Latitude do usuário.
+         * @param {number} userLon - Longitude do usuário.
+         */
+        function displayResult(unit, distance, userLat, userLon) {
+            document.getElementById('message-container').classList.add('hidden');
+            document.getElementById('result-container').classList.remove('hidden');
+
+            document.getElementById('unit-name').textContent = `Unidade ${unit.orientador}`;
+            document.getElementById('unit-address').textContent = unit.endereco;
+            
+            const distanceText = `${distance.toFixed(2).replace('.', ',')} km`;
+            document.getElementById('unit-distance').textContent = distanceText;
+
+            // Gera o link para o Google Maps para rotas
+            // 'daddr' é o endereço de destino. 'saddr' é o endereço de origem (Lat,Lon)
+            const mapUrl = `https://www.google.com/maps/dir/${userLat},${userLon}/${unit.latitude},${unit.longitude}`;
+            document.getElementById('map-link').href = mapUrl;
+
+            // Volta o botão ao normal
+            toggleLoading(false);
+        }
+        
+        /**
+         * Alterna o estado de loading e desabilita/habilita o botão.
+         * @param {boolean} isLoading - Se está carregando ou não.
+         */
+        function toggleLoading(isLoading) {
+            const button = document.getElementById('search-button');
+            const buttonText = document.getElementById('button-text');
+            const spinner = document.getElementById('loading-spinner');
+
+            if (isLoading) {
+                button.disabled = true;
+                buttonText.textContent = 'Buscando...';
+                spinner.classList.remove('hidden');
+            } else {
+                button.disabled = false;
+                buttonText.textContent = 'Buscar Unidade Mais Próxima';
+                spinner.classList.add('hidden');
+            }
+        }
+
+        // ----------------------------------------------------------------------
+        // 3. FUNÇÕES DE GEOLOCALIZAÇÃO
+        // ----------------------------------------------------------------------
+
+        /**
+         * Obtém a localização do usuário via Geolocation API do navegador.
+         */
+        function getUserGeolocation() {
+            toggleLoading(true);
+            
+            if (!navigator.geolocation) {
+                displayMessage("Seu navegador não suporta a API de Geolocalização.", true);
+                toggleLoading(false);
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    displayMessage("Localização obtida com sucesso. Calculando distância...", false);
+                    calculateClosestUnit(position.coords.latitude, position.coords.longitude);
+                },
+                (error) => {
+                    let errorMessage = "Erro ao obter localização.";
+                    if (error.code === error.PERMISSION_DENIED) {
+                        errorMessage = "Acesso à localização negado. Por favor, digite seu endereço.";
+                    } else if (error.code === error.POSITION_UNAVAILABLE) {
+                        errorMessage = "Informação de localização indisponível.";
+                    } else if (error.code === error.TIMEOUT) {
+                        errorMessage = "Tempo esgotado para obter localização.";
+                    }
+                    displayMessage(errorMessage, true);
+                    toggleLoading(false);
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        }
+
+        /**
+         * Geocodifica o endereço digitado pelo usuário usando o serviço Nominatim.
+         * @param {string} address - Endereço digitado.
+         */
+        async function geocodeAddress(address) {
+            // URL pública do Nominatim (OpenStreetMap)
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=br`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    
+                    displayMessage(`Endereço geocodificado para Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}. Calculando...`, false);
+                    calculateClosestUnit(lat, lon);
+                } else {
+                    displayMessage("Endereço não encontrado. Por favor, digite um endereço mais completo e claro (inclua cidade/estado).", true);
+                    toggleLoading(false);
+                }
+            } catch (error) {
+                console.error("Erro na geocodificação:", error);
+                displayMessage("Ocorreu um erro na comunicação com o serviço de mapas. Tente novamente mais tarde.", true);
+                toggleLoading(false);
+            }
+        }
+
+        // ----------------------------------------------------------------------
+        // 4. FUNÇÃO PRINCIPAL
+        // ----------------------------------------------------------------------
+
+        /**
+         * Inicia a busca pela unidade mais próxima.
+         * @param {boolean} useGeo - Indica se deve usar a localização do navegador.
+         */
+        function findClosestUnit(useGeo = false) {
+            if (useGeo) {
+                getUserGeolocation();
+                return;
+            }
+
+            const address = document.getElementById('user-address').value.trim();
+
+            if (address === "") {
+                displayMessage("Por favor, digite seu endereço antes de buscar.", true);
+                return;
+            }
+
+            toggleLoading(true);
+            displayMessage("Buscando coordenadas para o endereço...", false);
+            geocodeAddress(address);
+        }
+    </script>
+</body>
+</html>
