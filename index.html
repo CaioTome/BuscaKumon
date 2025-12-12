@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUMON Campo Grande | Encontre Sua Unidade</title>
+    <title>Kumon Campo Grande | Encontre Sua Unidade</title>
     <!-- Carrega o Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,10 +11,10 @@
             theme: {
                 extend: {
                     colors: {
-                        // Azul KUMON Escuro para contraste e cabeçalho
-                        'KUMON-blue-dark': '#003366', 
+                        // Azul Kumon Escuro para contraste e cabeçalho
+                        'kumon-blue-dark': '#003366', 
                         // Azul claro solicitado pelo usuário
-                        'KUMON-light': '#6cd7f7', 
+                        'kumon-light': '#6cd7f7', 
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -32,7 +32,7 @@
         .container-wrapper {
             max-width: 1200px;
         }
-        /* Adiciona um efeito sutil de sombra na cor KUMON Light ao passar o mouse */
+        /* Adiciona um efeito sutil de sombra na cor Kumon Light ao passar o mouse */
         .card-hover:hover {
             box-shadow: 0 4px 6px -1px rgba(108, 215, 247, 0.4), 0 2px 4px -2px rgba(108, 215, 247, 0.4);
         }
@@ -43,85 +43,86 @@
     <!-- Container Principal com Layout Centralizado -->
     <div class="container-wrapper mx-auto p-4 sm:p-8">
 
-        <!-- Cabeçalho (Usando o Azul KUMON Escuro) -->
-        <header class="text-center py-10 bg-KUMON-blue-dark rounded-xl shadow-lg mb-8">
+        <!-- Cabeçalho (Usando o Azul Kumon Escuro) -->
+        <header class="text-center py-10 bg-kumon-blue-dark rounded-xl shadow-lg mb-8">
             <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                Conheça sua unidade KUMON mais próxima
+                Conheça sua unidade Kumon mais próxima
             </h1>
             <p class="mt-2 text-xl text-white/90">
                 Campo Grande - Mato Grosso do Sul
             </p>
         </header>
 
-        <!-- Informação e Instruções (Usando o Azul KUMON Claro) -->
-        <div class="mb-8 p-4 bg-KUMON-light/30 border-l-4 border-KUMON-light rounded-lg shadow-md">
+        <!-- Informação e Instruções (Usando o Azul Kumon Claro) -->
+        <div class="mb-8 p-4 bg-kumon-light/30 border-l-4 border-kumon-light rounded-lg shadow-md">
             <p class="text-gray-700 text-lg font-medium">
-                Clique no card da unidade mais conveniente para você para ser direcionado à página oficial e obter mais detalhes.
+                Clique no card da unidade para ser direcionado à página oficial e obter mais detalhes.
             </p>
         </div>
 
-        <!-- Área dos Botões (Grid Responsivo) -->
+        <!-- Área dos Cards (Grid Responsivo) -->
         <div id="unidades-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Os botões serão injetados aqui pelo JavaScript -->
+            <!-- Os cards serão injetados aqui pelo JavaScript -->
         </div>
 
     </div>
 
     <script>
         /**
-         * Função utilitária para converter uma string para Title Case (primeira letra de cada palavra em maiúsculo).
+         * Função utilitária para converter uma string para Title Case.
+         * Remove quebras de linha/espaços extras e trata siglas (ex: AV, MS) para maiúsculas.
          * @param {string} str - A string a ser convertida.
          * @returns {string} A string formatada em Title Case.
          */
         function toTitleCase(str) {
             if (!str) return '';
+            // Remove espaços em branco extras e quebras de linha
+            str = str.replace(/["\n\r]/g, '').trim(); 
+            
             return str.toLowerCase().split(' ').map((word) => {
-                if (word.includes('(') || word.includes(')')) {
-                    // Mantém o Title Case se a palavra tiver parênteses (ex: nomes compostos)
-                    return word.charAt(0).toUpperCase() + word.slice(1);
-                }
                 // Garante que a primeira letra da palavra seja maiúscula
                 return word.charAt(0).toUpperCase() + word.slice(1);
             }).join(' ');
         }
         
-        // Dados das Unidades KUMON (Separados por Orientador, Bairro e Endereço)
-        const KUMONUnidadesRaw = [
-            { orientador: "ALICE", bairro: "Dom Bosco", endereco: "Rua Pernambuco, 137", link: "https://www.KUMON.com.br/ms/campo-grande-dom-bosco/" },
-            { orientador: "ANA FLAVIA", bairro: "Tiradentes", endereco: "Avenida Marques de Pombal, 925 Sala 1", link: "https://www.KUMON.com.br/ms/campo-grande-tiradentes/" },
-            { orientador: "ANNE", bairro: "Carandá Bosque", endereco: "RUA VITÓRIO ZEOLLA, 1853", link: "https://www.KUMON.com.br/ms/campo-grande-caranda-bosque/" },
-            { orientador: "BRUNA", bairro: "Mata do Jacinto", endereco: "AVENIDA ALBERTO DE ARAÚJO ARRUDA, 474", link: "https://www.KUMON.com.br/ms/campo-grande-mata-do-jacinto/" },
-            { orientador: "CLAUDINÉIA", bairro: "Av. Bandeirantes", endereco: "AVENIDA BANDEIRANTES, 1632", link: "https://www.KUMON.com.br/ms/campo-grande-av-bandeirantes/" },
-            { orientador: "ELINA KAORI", bairro: "Liberdade", endereco: "RUA LIBERDADE, 433", link: "https://www.KUMON.com.br/ms/campo-grande-liberdade/" },
-            { orientador: "FABRICIA", bairro: "Euclides da Cunha", endereco: "RUA EUCLIDES DA CUNHA, 561 SALA 7", link: "https://www.KUMON.com.br/ms/campo-grande-euclides-da-cunha/" },
-            { orientador: "JULIA", bairro: "Vilas Boas", endereco: "AVENIDA BOM PASTOR, 1035", link: "https://www.KUMON.com.br/ms/campo-grande-vilas-boas/" },
-            { orientador: "LIGIA", bairro: "Mascarenhas de Moraes", endereco: "AVENIDA MASCARENHAS DE MORAES, 2821", link: "https://www.KUMON.com.br/ms/campo-grande-mascarenhas-de-moraes/" },
-            { orientador: "MARIA JÚLIA", bairro: "Ponte Nova", endereco: "RUA LUIZ DE LIMA, 421", link: "https://www.KUMON.com.br/ms/campo-grande-ponte-nova/" },
-            { orientador: "MARTA REGINA", bairro: "Afonso Pena", endereco: "AVENIDA AFONSO PENA, 3968 SALA 113", link: "https://www.KUMON.com.br/ms/campo-grande-afonso-pena/" },
-            { orientador: "NORMA", bairro: "Pio Corrêa", endereco: "RUA CÂNDIDO DE OLIVEIRA, 437", link: "https://www.KUMON.com.br/ms/campo-grande-pio-correa/" },
-            { orientador: "SADAE", bairro: "Centro", endereco: "RUA RUI BARBOSA, 2831", link: "https://www.KUMON.com.br/ms/campo-grande-centro/" },
-            { orientador: "SIMONE", bairro: "Monte Líbano", endereco: "RUA AMADOR BUENO, 1224", link: "https://www.KUMON.com.br/ms/campo-grande-monte-libano/" },
-            { orientador: "SUELY", bairro: "Jardim dos Estados", endereco: "RUA ALFREDO PIRES, 203", link: "https://www.KUMON.com.br/ms/campo-grande-jardim-dos-estados/" },
-            { orientador: "VILMA", bairro: "Santa Fé", endereco: "AVENIDA SANTA FÉ, 775", link: "https://www.KUMON.com.br/ms/campo-grande-santa-fe/" },
+        // Dados das Unidades Kumon (Extraídos da lista mais recente fornecida)
+        const kumonUnidadesRaw = [
+            // [Primeiro Nome Orientadora, Último Nome Orientadora, Endereço Unidade, Página Web, Nome da Unidade]
+            { primeiroNome: "MARYANA", ultimoNome: "MARIN", endereco: "AVENIDA FÁBIO ZAHRAN, 2859 SALA 8", link: "https://www.kumon.com.br/ms/campo-grande-av-fabio-zahran-ms-1/", nomeUnidade: "AV. FÁBIO ZAHRAN" },
+            { primeiroNome: "BRUNA", ultimoNome: "FONTOURA", endereco: "Av. Júlio de Castilho, 832", link: "https://www.kumon.com.br/ms/campo-grande-av-julio-de-castilho-vila-alba-1/", nomeUnidade: "AV. JULIO DE CASTILHO VILA ALBA" },
+            { primeiroNome: "CLAUDINÉIA", ultimoNome: "SILVA", endereco: "AVENIDA BANDEIRANTES, 1632", link: "https://www.kumon.com.br/ms/campo-grande-av-bandeirantes/", nomeUnidade: "AV. BANDEIRANTES" },
+            { primeiroNome: "SIMONE", ultimoNome: "KUNIMOTO", endereco: "AVENIDA MATO GROSSO, 3673", link: "https://www.kumon.com.br/ms/campo-grande-av-mato-grossso/", nomeUnidade: "AV. MATO GROSSO" },
+            { primeiroNome: "ANNE", ultimoNome: "SILVA", endereco: "RUA VITÓRIO ZEOLLA, 1853", link: "https://www.kumon.com.br/ms/campo-grande-caranda-bosque/", nomeUnidade: "CARANDÁ BOSQUE" },
+            { primeiroNome: "ALICE", ultimoNome: "ISHIOKA", endereco: "Rua Pernambuco, 137", link: "https://www.kumon.com.br/ms/campo-grande-dom-bosco/", nomeUnidade: "DOM BOSCO" },
+            { primeiroNome: "FABRICIA", ultimoNome: "MIYASATO", endereco: "RUA EUCLIDES DA CUNHA, 561 SALA 7", link: "https://www.kumon.com.br/ms/campo-grande-euclides-da-cunha/", nomeUnidade: "EUCLIDES DA CUNHA" },
+            { primeiroNome: "NATALIA", ultimoNome: "CANTERO", endereco: "RUA JERUSALÉM, 788", link: "https://www.kumon.com.br/ms/campo-grande-jd-panama/", nomeUnidade: "JD. PANAMÁ" },
+            { primeiroNome: "ELINA KAORI", ultimoNome: "TANIGUCHI", endereco: "RUA LIBERDADE, 433", link: "https://www.kumon.com.br/ms/campo-grande-liberdade/", nomeUnidade: "LIBERDADE" },
+            { primeiroNome: "LIGIA", ultimoNome: "Souza", endereco: "AVENIDA MASCARENHAS DE MORAES, 2821", link: "https://www.kumon.com.br/ms/campo-grande-mascarenhas-de-moraes/", nomeUnidade: "MASCARENHAS DE MORAES" },
+            { primeiroNome: "BRUNA", ultimoNome: "CORDEIRO", endereco: "AVENIDA ALBERTO DE ARAÚJO ARRUDA, 474", link: "https://www.kumon.com.br/ms/campo-grande-mata-do-jacinto/", nomeUnidade: "MATA DO JACINTO" },
+            { primeiroNome: "MARLI", ultimoNome: "YAMATO", endereco: "RUA ALUIZIO DE AZEVEDO, 606", link: "https://www.kumon.com.br/ms/campo-grande-monte-libano/", nomeUnidade: "MONTE LÍBANO" },
+            { primeiroNome: "MARIA JÚLIA", ultimoNome: "OLIVEIRA", endereco: "RUA ANA LUIZA DE SOUZA, 870 SALA 2", link: "https://www.kumon.com.br/ms/campo-grande-pioneiros-ms/", nomeUnidade: "PIONEIROS" }, 
+            { primeiroNome: "ANA FLAVIA", ultimoNome: "SOKEN", endereco: "Avenida Marques de Pombal, 925 Sala 1", link: "https://www.kumon.com.br/ms/campo-grande-tiradentes/", nomeUnidade: "TIRADENTES" }, 
+            { primeiroNome: "MARILEA", ultimoNome: "LOPES", endereco: "RUA SÃO BARTOLOMEU, 381", link: "https://www.kumon.com.br/ms/campo-grande-vila-nasser/", nomeUnidade: "VILA NASSER" },
+            { primeiroNome: "JULIA", ultimoNome: "KANAMARU", endereco: "AVENIDA BOM PASTOR, 1035", link: "https://www.kumon.com.br/ms/campo-grande-vilas-boas/", nomeUnidade: "VILAS BOAS" },
         ];
 
-        // 1. Aplicar Title Case e Padronizar Nomes
-        const KUMONUnidadesFormatadas = KUMONUnidadesRaw.map(unidade => ({
-            orientador: toTitleCase(unidade.orientador),
-            bairro: toTitleCase(unidade.bairro),
+        // 1. Aplicar Title Case e Padronizar Dados
+        const kumonUnidadesFormatadas = kumonUnidadesRaw.map(unidade => ({
+            nomeUnidade: toTitleCase(unidade.nomeUnidade),
+            orientadora: `Or. ${toTitleCase(unidade.primeiroNome)} ${toTitleCase(unidade.ultimoNome)}`,
             endereco: toTitleCase(unidade.endereco),
             link: unidade.link
         }));
 
-        // 2. Ordenar Alfabeticamente pelo Nome do Orientador
-        KUMONUnidadesFormatadas.sort((a, b) => {
-            return a.orientador.localeCompare(b.orientador, 'pt', { sensitivity: 'base' });
+        // 2. Ordenar Alfabeticamente pelo Nome da Unidade
+        kumonUnidadesFormatadas.sort((a, b) => {
+            return a.nomeUnidade.localeCompare(b.nomeUnidade, 'pt', { sensitivity: 'base' });
         });
 
         document.addEventListener('DOMContentLoaded', () => {
             const grid = document.getElementById('unidades-grid');
 
-            KUMONUnidadesFormatadas.forEach(unidade => {
+            kumonUnidadesFormatadas.forEach(unidade => {
                 // Cria o elemento de link (âncora) que age como o card
                 const linkElement = document.createElement('a');
                 linkElement.href = unidade.link;
@@ -129,21 +130,21 @@
 
                 // Adiciona as classes Tailwind para estilização do card (centralizado)
                 linkElement.className = `
-                    block p-6 bg-white border border-KUMON-light/50 rounded-xl shadow-lg 
-                    hover:bg-KUMON-blue-dark card-hover transition duration-300 ease-in-out
+                    block p-6 bg-white border border-kumon-light/50 rounded-xl shadow-lg 
+                    hover:bg-kumon-blue-dark card-hover transition duration-300 ease-in-out
                     group cursor-pointer text-center
                 `;
 
                 // Conteúdo interno do card
                 linkElement.innerHTML = `
-                    <!-- Nome do Orientador (Maior e em destaque) -->
-                    <p class="text-xl font-extrabold text-KUMON-blue-dark group-hover:text-white transition duration-300">
-                        ${unidade.orientador}
+                    <!-- Nome da Unidade (Destaque principal) -->
+                    <p class="text-xl font-extrabold text-kumon-blue-dark group-hover:text-white transition duration-300 mb-2">
+                        ${unidade.nomeUnidade}
                     </p>
 
-                    <!-- Bairro -->
-                    <p class="mt-2 text-md font-semibold text-gray-700 group-hover:text-white transition duration-300">
-                        ${unidade.bairro}
+                    <!-- Nome da Orientadora -->
+                    <p class="text-md font-semibold text-gray-700 group-hover:text-white transition duration-300">
+                        ${unidade.orientadora}
                     </p>
 
                     <!-- Endereço -->
@@ -152,8 +153,8 @@
                     </p>
                     
                     <!-- Link (Visitar Página) -->
-                    <span class="mt-4 inline-block text-sm font-bold border-b-2 border-KUMON-light text-KUMON-light group-hover:text-white group-hover:border-white transition duration-300">
-                        Visitar Página
+                    <span class="mt-4 inline-block text-sm font-bold border-b-2 border-kumon-light text-kumon-light group-hover:text-white group-hover:border-white transition duration-300">
+                        Visitar Página &rarr;
                     </span>
                 `;
                 
